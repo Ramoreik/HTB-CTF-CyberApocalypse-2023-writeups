@@ -10,6 +10,8 @@ Can you hack into the password manager?
 
 #### Solve
 
+![](/images/passman-source-tree.png)
+
 When we begin this challenge, we arrive on this landing page:
 
 ![](/images/passman_login.png)

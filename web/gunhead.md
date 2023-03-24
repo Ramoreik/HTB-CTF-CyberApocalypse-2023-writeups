@@ -9,6 +9,8 @@ With the situation escalating rapidly, Pandora used her hacking skills to infilt
 
 #### Solve
 
+![](/images/gunhead-source-tree.png)
+
 Our mission in this challenge is to disable the **Gunhead** combat robot.
 
 Here is the landing page:

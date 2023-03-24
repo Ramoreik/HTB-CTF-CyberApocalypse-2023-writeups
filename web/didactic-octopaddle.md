@@ -10,6 +10,9 @@ Your ultimate challenge is to shut down the parasitic alien vessels and save hum
 
 #### Solve
 
+![](/images/didactic-source-tree.png)
+
+
 The challenge begins with a login prompt.
 ![](/images/didactic-login.png)
 

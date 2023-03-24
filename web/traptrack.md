@@ -18,12 +18,13 @@ Can you take a look and see if you can infiltrate their system?
 #### Solve
 
 ##### Understanding what it does
+
+![](/images/traptrack-source-tree.png)
+
 We begin the challenge and we are greeted with a login page.
 
 ![](/images/traptrack-login.png)
 
-Contents of the source code:
-![](/images/traptrack-source-tree.png)
 
 This is a Flask application.
 A quick peek at the `config.py` file reveals that the administrator account credentials are simply `admin:admin`.

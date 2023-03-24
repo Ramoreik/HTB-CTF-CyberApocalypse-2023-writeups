@@ -8,6 +8,8 @@ Can you help pandora with this task?
 
 #### Solve
 
+![](/images/drobots-source-tree.png)
+
 This is an SQL challenge.
 It is the made to introduce the concept of SQL Injection.
 

@@ -9,6 +9,8 @@
 #### Solve
 ##### Auth bypass
 
+![](/images/orbital-source-tree.png)
+
 This challenge builds on the basics of SQL Injection explored in the `Drobots` challenge.
 It is another case of login bypass, with a much more interesting payload.
 
