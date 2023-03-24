@@ -106,11 +106,11 @@ This list is called `REDIS_QUEUE`, so I imagine it is used as such.
 We have to find out how this queue and our data is consumed.  
 
 There is a `worker` folder, included with the sources.  
-It is a completely separate python process, that seems to consume and execute the objects added to the queue.  
+It is a completely separate python process, that consumes and executes the healthchecks added to the queue.  
 
 Let's analyze its source a bit.  
 
-The config section seems interesting:  
+The config section is interesting:  
 
 ```python
 config = {
@@ -150,7 +150,7 @@ if __name__ == '__main__':
 
 The worker executes the `run_worker` function every 10 seconds, forever.  
 
-The `run_worker` function, seems to get a `job` from the result of a call to `get_work_item`.  
+The `run_worker` function, starts by getting the value for the `job` variable from the result of a call to `get_work_item`.  
 
 Let's see what it does:  
 
@@ -166,7 +166,7 @@ def get_work_item():
     return job
 ```
 
-This seems to pop the last element on the `jobsqueue` list.  
+This pops the last element on the `jobsqueue` list.  
 This return a `job_id`, which is in turn used to gather the data from `jobs`.  
 Once the data is obtained, it is decoded and then __deserialized__.  
 

@@ -12,24 +12,24 @@ Can you hack into the password manager?
 
 ![](/images/passman-source-tree.png)
 
-When we begin this challenge, we arrive on this landing page:
+When we begin this challenge, we arrive on this landing page:  
 
 ![](/images/passman_login.png)
 
-It seems like we can `Login` and `Register` a new account.
-Let's inspect the logic behind these functionalities in the source.
-It seems like these are handled by `GraphQL` mutations.
+We can `Login` and `Register` a new account.  
+Let's inspect the logic behind these functionalities in the source.  
+These are handled by `GraphQL` mutations.  
 
-These mutations are in the `helper/GraphQLHelper.js` file.
+These mutations are in the `helper/GraphQLHelper.js` file.  
+Three mutations are available pertaining to the authentication of users:  
 
-It seems like there are three mutations pertaining to the authentication of users:
+- `RegisterUser`: Handles the creation of a new user.  
+- `LoginUser`: Handles the authentication of a user.  
+- `UpdatePassword`: Handles the password update functionality for a user.  
 
-- `RegisterUser`: Handles the creation of a new user.
-- `LoginUser`: Handles the authentication of a user.
-- `UpdatePassword`: Handles the password update functionality for a user.
+There is a logic flaw in the `UpdatePassword` mutation.  
+Let's take a look:  
 
-It seems like there is some logic flaw in the `UpdatePassword` mutation.
-Let's take a look:
 ```javascript
         UpdatePassword: {
             type: ResponseType,
@@ -49,14 +49,14 @@ Let's take a look:
         },
 ```
 
-This feature does not validate that the initiator is the target of the password change.
+This feature does not validate that the initiator is the target of the password change.  
 
-We can see that it check if `request.user` exists.
-But then it uses `args.username` to specify which user to reset.
+We can see that it check if `request.user` exists.  
+But then it uses `args.username` to specify which user to reset.  
 
-Letting us change the password for any user.
+Letting us change the password for any user.  
 
-Here is the request used to changed the `admin` password:
+Here is the request used to changed the `admin` password:  
 
 ```http
 POST /graphql HTTP/1.1
@@ -76,9 +76,9 @@ Connection: close
 {"query":"mutation($username: String!, $password: String!) { UpdatePassword(username: $username, password: $password) { message } }","variables":{"username":"admin","password":"taken-over"}}
 ```
 
-Using this request, will reset the `admin` user's password for `taken-over`.
+Using this request, will reset the `admin` user's password for `taken-over`.  
 
-Once this request is done, we can authenticate as `admin` and obtain the flag.
+Once this request is done, we can authenticate as `admin` and obtain the flag.  
 
 ![](/images/passman_flag.png)
 

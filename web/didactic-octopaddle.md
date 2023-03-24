@@ -33,7 +33,7 @@ It is a webshop.
 
 ##### Obtaning RCE
 
-There is an admin page at `/admin`, this page seems to list the existing users.  
+There is an admin page at `/admin`, this page lists the existing users.  
 
 Here is the code of the `admin.jsrender` file:  
 
