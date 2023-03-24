@@ -1,11 +1,11 @@
-## TrapTrack :: Hard
+# TrapTrack :: Hard
 
 This challenge was a pure blast.  
 The whole concept is super fun and interesting.  
 It is defintely a new twist for me on the Redis exploitaiton side of CTFs.  
 
 
-#### Scenario
+## Scenario
 
 
 ```
@@ -15,9 +15,9 @@ Can you take a look and see if you can infiltrate their system?
 ```
 
 
-#### Solve
+## Solve
 
-##### Understanding what it does
+### Understanding what it does
 
 ![](/images/traptrack-source-tree.png)
 
@@ -101,7 +101,7 @@ We add the data and use the `job_id` as the key identifying our data.
 Afterwards, the application takes the `job_id`, and pushes it on a `redis list`.  
 This list is called `REDIS_QUEUE`, so I imagine it is used as such.  
 
-##### Analyzing the worker
+### Analyzing the worker
 
 We have to find out how this queue and our data is consumed.  
 
@@ -267,7 +267,7 @@ Note that the `%0aQUIT` is most likely optional, but it prevents the connection 
 redis will keep the connection alive a while if it is not explicitly ended.  
 
 
-#### Scripts
+## Scripts
 
 ```python
 import pickle

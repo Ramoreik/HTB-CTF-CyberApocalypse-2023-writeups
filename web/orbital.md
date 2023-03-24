@@ -1,13 +1,13 @@
-## Orbital :: Easy
-#### Scenario 
+# Orbital :: Easy
+## Scenario 
 
 ```
  Orbital
  In order to decipher the alien communication that held the key to their location, she needed access to a decoder with advanced capabilities - a decoder that only The Orbital firm possessed. Can you get your hands on the decoder?
 ```
 
-#### Solve
-##### Auth bypass
+## Solve
+### Auth bypass
 
 ![](/images/orbital-source-tree.png)
 
@@ -78,7 +78,7 @@ We are then logged into a dashboard:
 
 ![](/images/orbital_dashboard.png)
 
-##### LFI in export function
+### LFI in export function
 
 In this dashboard, there is an export function for various communications.  
 
@@ -101,7 +101,7 @@ With the following payload:
 
 Once we obtain this file, it contains the flag !  
 
-#### Script
+## Script
 ```python
 #!/usr/bin/env python3
 import requests

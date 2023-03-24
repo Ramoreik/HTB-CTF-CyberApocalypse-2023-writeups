@@ -1,6 +1,6 @@
-## SpyBug :: Medium
+# SpyBug :: Medium
 
-#### Scenario
+## Scenario
 
 ```
 As Pandora made her way through the ancient tombs, she received a message from her contact in the Intergalactic Ministry of Spies.
@@ -9,14 +9,14 @@ The message contained information about a digital portal that leads to a softwar
 Can you hack into the portal and take down the aliens counter-spying operation?
 ```
 
-#### Solve
+## Solve
 
 ![](/images/spybug-source-tree.png)
 
 This is a polyglot and XSS challenge.    
 It is s very nice one.    
 
-##### Analyzing the bug.
+### Analyzing the bug.
 
 The premise is that there is a go program called `spybug-agent.go`.      
 This program is like an implant, put on a compromised machine to spy on its user.  
@@ -64,7 +64,7 @@ We can see that the bug initiates a `Ticker` object, executing the `recordingRou
 After the recording is done, it then sends it to a server.  
 On which an administrator can listen to these recordings.  
 
-##### Analyzing the backend.
+### Analyzing the backend.
 Here is the login form for the backend:  
 
 ![](/images/spybug-login.png)
@@ -121,7 +121,7 @@ Anything else will be blocked by the CSP, even if the application is vulnerable 
 
 We need to place a file on the server running the application, and have that file accessible to inlude as a `src` to our XSS.  
 
-##### Crafting a payload.
+### Crafting a payload.
 
 **The `spybug` uploads recordings.**  
 
@@ -141,7 +141,7 @@ This payload will send the content of the admin panel to our webhook instance, g
 The `mode: no-cors` is important for this to work, otherwise the `cors` will block the request.(the bot uses headless chromium)  
 
 
-##### Uploading our payload.
+### Uploading our payload.
   
 Now we need to upload our file.  
 
@@ -255,7 +255,7 @@ Which will send the flag to us !
 
 ![](/images/spybug-admin-page-decoded.png)
 
-#### Script
+## Script
 
 ```python
 #!/usr/bin/env python3

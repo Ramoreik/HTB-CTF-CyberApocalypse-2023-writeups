@@ -1,7 +1,7 @@
 
-## Trapped Source :: Very Easy
+# Trapped Source :: Very Easy
 
-#### Scenario
+## Scenario
 
 ```
 The Intergalactic Ministry of Spies tested Pandora's movement and intelligence abilities.
@@ -10,7 +10,7 @@ Her task was to unlock the door and make her way out.
 Can you help her in opening the door?
 ```
 
-#### Solve
+## Solve
 
 This challenge presents a `PIN pad` to you and you have to enter the correct PIN to get the flag.  
 

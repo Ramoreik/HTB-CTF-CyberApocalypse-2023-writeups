@@ -1,6 +1,6 @@
-## Didactic Octo Paddle :: Medium
+# Didactic Octo Paddle :: Medium
 
-#### Scenario
+## Scenario
 
 ```
 You have been hired by the Intergalactic Ministry of Spies to retrieve a powerful relic that is believed to be hidden within the small paddle shop, by the river.
@@ -8,7 +8,7 @@ You must hack into the paddle shop's system to obtain information on the relic's
 Your ultimate challenge is to shut down the parasitic alien vessels and save humanity from certain destruction by retrieving the relic hidden within the Didactic Octo Paddles shop.
 ```
 
-#### Solve
+## Solve
 
 ![](/images/didactic-source-tree.png)
 
@@ -31,7 +31,7 @@ We can then login and see the store:
 It seems like they're selling litteral paddles.  
 It is a webshop.  
 
-##### Obtaning RCE
+### Obtaning RCE
 
 There is an admin page at `/admin`, this page lists the existing users.  
 
@@ -111,7 +111,7 @@ Now, one question arises, is admin a bot or do we have to elevate ?
 This works, it gets RCE on my local instance.  
 Now time to figure out the admin situation.  
 
-##### Obtaining Admin
+### Obtaining Admin
 
 While reading the source for `AdminMiddleware.js`, I found a weird condition on the JWT's `alg` value.  
 Here is the condition:  
@@ -207,7 +207,7 @@ Connection: close
 
 Now that we can visit the admin page, we put it all together and create a malicious user to extract the flag.  
 
-#### Script
+## Script
 
 ```python
 #!/usr/bin/env python3

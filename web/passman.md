@@ -1,6 +1,6 @@
-## Passman :: Easy
+# Passman :: Easy
 
-#### Scenario
+## Scenario
 
 ```
 Pandora discovered the presence of a mole within the ministry.
@@ -8,7 +8,7 @@ To proceed with caution, she must obtain the master control password for the min
 Can you hack into the password manager?
 ```
 
-#### Solve
+## Solve
 
 ![](/images/passman-source-tree.png)
 

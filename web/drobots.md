@@ -1,12 +1,12 @@
-## Drobots :: Easy
-#### Scenario
+# Drobots :: Easy
+## Scenario
 
 ```
 Pandora's latest mission as part of her reconnaissance training is to infiltrate the Drobots firm that was suspected of engaging in illegal activities.
 Can you help pandora with this task?
 ```
 
-#### Solve
+## Solve
 
 ![](/images/drobots-source-tree.png)
 
@@ -70,7 +70,7 @@ HTB{p4r4m3t3r1z4t10n_1s_1mp0rt4nt!!!}
 
 No script for this one, since it's only a single form.  
   
-##### Important note on the use of `' or 1=1;--`
+### Important note on the use of `' or 1=1;--`
 
 This injection is normally not recommended, as it can cause damage when used blindly.  
 

